@@ -2,44 +2,28 @@
 
 namespace App\Filament\Resources\Products\Pages;
 
-use App\Filament\Resources\Concerns\HasFormActionsAtTopAndBottom;
 use App\Filament\Resources\Products\ProductResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
-use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditProduct extends EditRecord
+class ViewProduct extends ViewRecord
 {
-    use HasFormActionsAtTopAndBottom;
-
     protected static string $resource = ProductResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
+            EditAction::make(),
             ActionGroup::make([
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
             ])
-                ->tooltip('Actions'),
+                ->tooltip('More actions'),
         ];
-    }
-
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        $userId = Auth::id();
-
-        if ($userId) {
-            $data['updated_by'] = $userId;
-        }
-
-        $data['slug'] = Str::slug($data['name'] ?? '');
-
-        return $data;
     }
 }

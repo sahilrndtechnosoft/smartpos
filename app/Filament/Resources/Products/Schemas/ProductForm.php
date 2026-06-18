@@ -8,9 +8,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Str;
 
 class ProductForm
@@ -20,17 +20,15 @@ class ProductForm
         return $schema
             ->components([
                 Section::make('Product information')
+                    ->icon(Heroicon::OutlinedCube)
+                    ->description('Basic details used across sales, inventory, and reporting.')
                     ->columns(2)
                     ->schema([
                         TextInput::make('name')
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(function (Set $set, ?string $state, Get $get): void {
-                                if (filled($get('slug'))) {
-                                    return;
-                                }
-
+                            ->afterStateUpdated(function (Set $set, ?string $state): void {
                                 $set('slug', Str::slug($state ?? ''));
                             })
                             ->columnSpanFull(),
@@ -39,7 +37,9 @@ class ProductForm
                             ->required()
                             ->maxLength(255)
                             ->alphaDash()
-                            ->unique(table: Product::class, ignoreRecord: true),
+                            ->unique(table: Product::class, ignoreRecord: true)
+                            ->disabled()
+                            ->dehydrated(),
 
                         TextInput::make('barcode')
                             ->maxLength(255),
@@ -76,6 +76,8 @@ class ProductForm
                     ]),
 
                 Section::make('Tax, stock & status')
+                    ->icon(Heroicon::OutlinedAdjustmentsHorizontal)
+                    ->description('Pricing, reorder rules, and product availability.')
                     ->columns(2)
                     ->schema([
                         TextInput::make('hsn_code')

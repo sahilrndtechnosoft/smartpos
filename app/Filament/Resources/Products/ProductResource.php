@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Products;
 
+use App\Filament\Resources\Concerns\AuthorizesModuleAccess;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Filament\Resources\Products\Pages\ViewProduct;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Tables\ProductsTable;
 use App\Models\Product;
@@ -19,6 +21,8 @@ use UnitEnum;
 
 class ProductResource extends Resource
 {
+    use AuthorizesModuleAccess;
+
     protected static ?string $model = Product::class;
 
     protected static string|BackedEnum|null $navigationIcon =
@@ -47,6 +51,7 @@ class ProductResource extends Resource
         return [
             'index' => ListProducts::route('/'),
             'create' => CreateProduct::route('/create'),
+            'view' => ViewProduct::route('/{record}'),
             'edit' => EditProduct::route('/{record}/edit'),
         ];
     }
@@ -57,5 +62,10 @@ class ProductResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    protected static function getModuleKey(): string
+    {
+        return 'products';
     }
 }

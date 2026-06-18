@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Filament\Resources\Products\Pages;
+namespace App\Filament\Resources\Users\Pages;
 
-use App\Filament\Resources\Products\ProductResource;
+use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Icons\Heroicon;
 
-class ListProducts extends ListRecords
+class ListUsers extends ListRecords
 {
-    protected static string $resource = ProductResource::class;
+    protected static string $resource = UserResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('New product')
+                ->label('New user')
                 ->icon(Heroicon::Plus),
         ];
     }
