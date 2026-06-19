@@ -30,6 +30,9 @@ class AdminPanelProvider extends PanelProvider
             ->path('harsh/adminpov')
             ->login()
             ->brandName('SmartPOS')
+            ->brandLogo(asset('logo.png'))
+            ->darkModeBrandLogo(asset('logo.png'))
+            ->brandLogoHeight('5.5rem')
             ->colors([
                 'primary' => Color::Amber,
             ])
