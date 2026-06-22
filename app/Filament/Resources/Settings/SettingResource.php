@@ -33,7 +33,21 @@ class SettingResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    protected static ?string $slug = 'settings-records';
+
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canViewAny(): bool
+    {
+        return false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 
     public static function form(Schema $schema): Schema
     {

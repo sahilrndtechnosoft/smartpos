@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Setting;
+use App\Services\SettingStore;
 use Illuminate\Database\Seeder;
 
 class SettingSeeder extends Seeder
@@ -54,5 +55,33 @@ class SettingSeeder extends Seeder
                 $setting,
             );
         }
+
+        SettingStore::set('contact_details', [
+            'shop_name' => 'GharGrocer',
+            'email' => 'support@ghargrocer.com',
+            'primary_phone' => '9913705841',
+            'website_url' => 'https://ghargrocer.com',
+            'address' => 'Shop No 3 Desai wad Sun Enclave Building Ground Floor Vapi Town',
+            'google_map_address' => '',
+            'other_phones' => [
+                ['name' => 'Darshan', 'phone' => '9662915733'],
+            ],
+            'other_emails' => [],
+        ], 'contact');
+
+        SettingStore::set('social_links', [
+            'whatsapp' => '',
+            'instagram' => '',
+            'youtube' => '',
+            'linkedin' => '',
+            'facebook' => '',
+            'twitter' => '',
+        ], 'contact');
+
+        SettingStore::set('company_details', [
+            'firm_pan_number' => 'ABCDE1234F',
+            'gst_number' => '24ABCDE1234F1Z5',
+            'fssai_license' => '12345678901234',
+        ], 'company');
     }
 }

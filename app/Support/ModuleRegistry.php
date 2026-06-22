@@ -17,6 +17,8 @@ class ModuleRegistry
             'inventories' => 'Inventories',
             'customers' => 'Customers',
             'suppliers' => 'Suppliers',
+            'orders' => 'Sales orders',
+            'keyboard_shortcuts' => 'Keyboard shortcuts',
             'taxes' => 'Taxes',
             'tax_groups' => 'Tax groups',
             'settings' => 'Settings',

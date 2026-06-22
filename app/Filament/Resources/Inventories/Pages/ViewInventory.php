@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Inventories\Pages;
 
+use App\Filament\Actions\PrintDocumentAction;
 use App\Filament\Resources\Inventories\InventoryResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -17,6 +18,7 @@ class ViewInventory extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            PrintDocumentAction::make('print', 'Print invoice', 'print.inventories.invoice'),
             EditAction::make(),
             ActionGroup::make([
                 DeleteAction::make(),

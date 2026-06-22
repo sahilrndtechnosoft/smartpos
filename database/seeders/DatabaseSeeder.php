@@ -24,10 +24,12 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             CustomerSeeder::class,
             SupplierSeeder::class,
+            OrderSeeder::class,
             InventorySeeder::class,
             SettingSeeder::class,
             SessionSeeder::class,
             NotificationSeeder::class,
+            KeyboardShortcutSeeder::class,
         ]);
     }
 }

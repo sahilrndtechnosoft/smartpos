@@ -42,6 +42,8 @@ class UserSeeder extends Seeder
             'inventories' => ['can_view' => true, 'can_create' => true, 'can_edit' => true, 'can_delete' => false],
             'customers' => ['can_view' => true, 'can_create' => true, 'can_edit' => true, 'can_delete' => false],
             'suppliers' => ['can_view' => true, 'can_create' => false, 'can_edit' => false, 'can_delete' => false],
+            'orders' => ['can_view' => true, 'can_create' => true, 'can_edit' => true, 'can_delete' => false],
+            'keyboard_shortcuts' => ['can_view' => true, 'can_create' => true, 'can_edit' => true, 'can_delete' => false],
             'taxes' => ['can_view' => true, 'can_create' => false, 'can_edit' => false, 'can_delete' => false],
             'tax_groups' => ['can_view' => true, 'can_create' => false, 'can_edit' => false, 'can_delete' => false],
             'settings' => ['can_view' => true, 'can_create' => false, 'can_edit' => false, 'can_delete' => false],

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Inventories\Tables;
+namespace App\Filament\Resources\Orders\Tables;
 
 use App\Filament\Actions\PrintDocumentAction;
 use Filament\Actions\ActionGroup;
@@ -15,35 +15,44 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
-class InventoriesTable
+class OrdersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
                 TextColumn::make('code')
+                    ->label('SO number')
                     ->searchable()
                     ->sortable()
                     ->weight('medium'),
 
-                TextColumn::make('supplier.name')
-                    ->label('Supplier')
+                TextColumn::make('customer.name')
+                    ->label('Customer')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('status')
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
-                    ->color(fn (string $state): string => match ($state) {
-                        'completed' => 'success',
-                        'cancelled' => 'danger',
-                        default => 'warning',
-                    })
-                    ->sortable(),
+                TextColumn::make('customer.phone')
+                    ->label('Phone')
+                    ->searchable()
+                    ->toggleable(),
 
-                TextColumn::make('date')
+                TextColumn::make('ordered_at')
+                    ->label('Ordered at')
                     ->dateTime('d M Y H:i')
                     ->sortable(),
+
+                TextColumn::make('payment_mode')
+                    ->label('Payment')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => strtoupper($state))
+                    ->sortable(),
+
+                TextColumn::make('grand_total')
+                    ->label('Grand total')
+                    ->money('INR')
+                    ->sortable()
+                    ->alignEnd(),
 
                 TextColumn::make('items_count')
                     ->label('Items')
@@ -56,19 +65,22 @@ class InventoriesTable
                     ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('date', 'desc')
+            ->defaultSort('ordered_at', 'desc')
             ->striped()
             ->filters([
-                SelectFilter::make('status')
+                SelectFilter::make('payment_mode')
+                    ->label('Payment mode')
                     ->options([
-                        'pending' => 'Pending',
-                        'completed' => 'Completed',
-                        'cancelled' => 'Cancelled',
+                        'cod' => 'COD',
+                        'online' => 'Online',
+                        'card' => 'Card',
+                        'upi' => 'UPI',
+                        'wallet' => 'Wallet',
                     ]),
 
-                SelectFilter::make('supplier_id')
-                    ->label('Supplier')
-                    ->relationship('supplier', 'name')
+                SelectFilter::make('customer_id')
+                    ->label('Customer')
+                    ->relationship('customer', 'name')
                     ->searchable()
                     ->preload(),
 
@@ -78,7 +90,7 @@ class InventoriesTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    PrintDocumentAction::make('print', 'Print invoice', 'print.inventories.invoice'),
+                    PrintDocumentAction::make('print', 'Print invoice', 'print.orders.invoice'),
                     DeleteAction::make(),
                 ])
                     ->tooltip('Actions'),
@@ -88,8 +100,8 @@ class InventoriesTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->emptyStateHeading('No inventories yet')
-            ->emptyStateDescription('Record stock receipts from suppliers.')
-            ->emptyStateIcon(Heroicon::OutlinedClipboardDocumentList);
+            ->emptyStateHeading('No sales orders yet')
+            ->emptyStateDescription('Create a sales order for a customer.')
+            ->emptyStateIcon(Heroicon::OutlinedShoppingCart);
     }
 }
