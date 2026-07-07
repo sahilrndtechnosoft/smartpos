@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Orders\Schemas;
 
+use App\Filament\Forms\PosFormFields;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
@@ -74,6 +75,8 @@ class OrderForm
 
                 Section::make('Line items')
                     ->schema([
+                        PosFormFields::barcodeScan(),
+
                         Repeater::make('items')
                             ->relationship()
                             ->label('Items')
@@ -82,6 +85,13 @@ class OrderForm
                             ->collapsible()
                             ->cloneable()
                             ->defaultItems(0)
+                            ->itemLabel(fn (array $state): ?string => filled($state['product_name'] ?? null)
+                                ? sprintf('%s × %s', $state['product_name'], $state['qty'] ?? 1)
+                                : null)
+                            ->live()
+                            ->afterStateUpdated(function (Get $get, Set $set): void {
+                                self::syncOrderTotals($get, $set);
+                            })
                             ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): array => self::normalizeItemData($data))
                             ->mutateRelationshipDataBeforeSaveUsing(fn (array $data): array => self::normalizeItemData($data))
                             ->columnSpanFull(),
@@ -96,6 +106,7 @@ class OrderForm
                                     ->label('Subtotal')
                                     ->numeric()
                                     ->prefix('₹')
+                                    ->default(0)
                                     ->disabled()
                                     ->dehydrated(),
 
@@ -103,6 +114,7 @@ class OrderForm
                                     ->label('Discount total')
                                     ->numeric()
                                     ->prefix('₹')
+                                    ->default(0)
                                     ->disabled()
                                     ->dehydrated(),
 
@@ -110,6 +122,7 @@ class OrderForm
                                     ->label('Grand total')
                                     ->numeric()
                                     ->prefix('₹')
+                                    ->default(0)
                                     ->disabled()
                                     ->dehydrated(),
 
@@ -117,6 +130,7 @@ class OrderForm
                                     ->label('Primary total')
                                     ->numeric()
                                     ->prefix('₹')
+                                    ->default(0)
                                     ->disabled()
                                     ->dehydrated(),
                             ]),
@@ -185,6 +199,7 @@ class OrderForm
                         }),
 
                     TextInput::make('qty')
+                        ->label('Qty')
                         ->numeric()
                         ->default(1)
                         ->minValue(1)
@@ -357,5 +372,63 @@ class OrderForm
         }
 
         return $data;
+    }
+
+    public static function syncOrderTotals(Get $get, Set $set): void
+    {
+        foreach (self::calculateOrderTotals($get('items') ?? []) as $field => $value) {
+            $set($field, $value);
+        }
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $items
+     * @return array<string, float>
+     */
+    public static function calculateOrderTotals(array $items): array
+    {
+        $normalized = collect($items)
+            ->filter(fn ($item): bool => is_array($item))
+            ->map(fn (array $item): array => self::normalizeItemData($item));
+
+        return [
+            'total' => round((float) $normalized->sum('subtotal'), 2),
+            'discount_total' => round((float) $normalized->sum('discount_amount'), 2),
+            'grand_total' => round((float) $normalized->sum('final_price'), 2),
+            'primary_total' => round((float) $normalized->sum(fn (array $item): float => (float) ($item['primary_total'] ?? 0)), 2),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public static function applyOrderTotals(array $data): array
+    {
+        foreach (self::calculateOrderTotals($data['items'] ?? []) as $field => $value) {
+            $data[$field] = $value;
+        }
+
+        return $data;
+    }
+
+    public static function buildLineItemFromProduct(Product $product, int $qty = 1): array
+    {
+        $rateKey = 'rate_a';
+        $unitPrice = ProductRateOptions::priceFor($product, $rateKey);
+        $item = [
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'product_snapshot' => [
+                'applied_rate' => $rateKey,
+            ],
+            'qty' => $qty,
+            'unit_price' => $unitPrice,
+            'discount_type' => null,
+            'discount_value' => null,
+            'tax_total' => 0,
+        ];
+
+        return self::normalizeItemData($item);
     }
 }

@@ -2,17 +2,8 @@
 
 @section('content')
     <div class="header">
-        <div class="brand">
-            @if ($store['logo'])
-                <img src="{{ $store['logo'] }}" alt="{{ $store['name'] }}">
-            @endif
-            <div>
-                <h1>{{ $store['name'] }}</h1>
-                @if ($store['phone'])
-                    <p>{{ $store['phone'] }}</p>
-                @endif
-            </div>
-        </div>
+        @include('print.partials.store-brand')
+
         <div class="meta">
             <h2>Inventory Receipt</h2>
             <p><strong>Receipt:</strong> {{ $document->code }}</p>

@@ -21,7 +21,7 @@ class SettingSeeder extends Seeder
                 'group' => 'general',
                 'name' => 'store_name',
                 'locked' => false,
-                'payload' => ['value' => 'SmartPOS Demo Store'],
+                'payload' => ['value' => 'Mulji Harji'],
             ],
             [
                 'group' => 'general',

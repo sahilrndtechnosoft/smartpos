@@ -14,6 +14,13 @@ class Order extends Model
     use HasUuids;
     use SoftDeletes;
 
+    protected $attributes = [
+        'total' => 0,
+        'discount_total' => 0,
+        'grand_total' => 0,
+        'primary_total' => 0,
+    ];
+
     protected $fillable = [
         'customer_id',
         'code',

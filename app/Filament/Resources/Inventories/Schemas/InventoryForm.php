@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Inventories\Schemas;
 
+use App\Filament\Forms\PosFormFields;
 use App\Models\Inventory;
 use App\Models\Product;
 use Filament\Forms\Components\DatePicker;
@@ -69,6 +70,8 @@ class InventoryForm
 
                 Section::make('Items Details')
                     ->schema([
+                        PosFormFields::barcodeScan(),
+
                         Repeater::make('items')
                             ->relationship()
                             ->label('Items')
@@ -176,5 +179,16 @@ class InventoryForm
         $data['is_locked'] = $data['is_locked'] ?? false;
 
         return $data;
+    }
+
+    public static function buildLineItemFromProduct(Product $product, int $qty = 1): array
+    {
+        return self::normalizeItemData([
+            'product_id' => $product->id,
+            'qty' => $qty,
+            'purchase_rate' => $product->purchase_rate,
+            'rate_a' => $product->rate_a,
+            'mrp' => $product->mrp,
+        ]);
     }
 }

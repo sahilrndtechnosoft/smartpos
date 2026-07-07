@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Inventory;
 use App\Models\Order;
-use App\Models\Setting;
 use App\Models\User;
+use App\Services\PrintStoreDetails;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
 
@@ -51,15 +51,6 @@ class PrintDocumentController extends Controller
      */
     protected function storeDetails(): array
     {
-        $settings = Setting::query()
-            ->whereIn('name', ['store_name', 'store_phone', 'receipt_footer'])
-            ->pluck('payload', 'name');
-
-        return [
-            'name' => data_get($settings->get('store_name'), 'value', 'SmartPOS'),
-            'phone' => data_get($settings->get('store_phone'), 'value'),
-            'footer' => data_get($settings->get('receipt_footer'), 'text'),
-            'logo' => file_exists(public_path('logo.jpeg')) ? asset('logo.jpeg') : null,
-        ];
+        return PrintStoreDetails::resolve();
     }
 }
