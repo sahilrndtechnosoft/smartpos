@@ -71,11 +71,13 @@ class OrdersTable
                 SelectFilter::make('payment_mode')
                     ->label('Payment mode')
                     ->options([
-                        'cod' => 'COD',
+                        'cod' => 'Cash',
                         'online' => 'Online',
                         'card' => 'Card',
                         'upi' => 'UPI',
                         'wallet' => 'Wallet',
+                        'credit' => 'Credit',
+                        'multi' => 'Multiple',
                     ]),
 
                 SelectFilter::make('customer_id')

@@ -61,6 +61,11 @@ class Order extends Model
         return $this->morphMany(Payment::class, 'payable');
     }
 
+    public function saleReturns(): HasMany
+    {
+        return $this->hasMany(SaleReturn::class);
+    }
+
     public function recalculateTotals(): void
     {
         $this->load('items');

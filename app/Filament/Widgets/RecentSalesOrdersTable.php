@@ -54,11 +54,13 @@ class RecentSalesOrdersTable extends BaseWidget
             ->filters([
                 SelectFilter::make('payment_mode')
                     ->options([
-                        'cod' => 'Cash on delivery',
+                        'cod' => 'Cash',
                         'online' => 'Online',
                         'card' => 'Card',
                         'upi' => 'UPI',
                         'wallet' => 'Wallet',
+                        'credit' => 'Credit',
+                        'multi' => 'Multiple',
                     ]),
             ])
             ->recordUrl(fn (Order $record): string => OrderResource::getUrl('view', ['record' => $record]))

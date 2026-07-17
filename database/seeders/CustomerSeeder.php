@@ -10,6 +10,8 @@ class CustomerSeeder extends Seeder
 {
     public function run(): void
     {
+        Customer::cashCustomer();
+
         $customers = [
             [
                 'phone' => '9724806960',

@@ -61,6 +61,52 @@
         focusBarcodeInput();
     });
 
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'F9') {
+            return;
+        }
+
+        const input = document.querySelector(BARCODE_SELECTOR);
+
+        if (! input) {
+            return;
+        }
+
+        const component = window.Livewire?.find(
+            input.closest('[wire\\:id]')?.getAttribute('wire:id'),
+        );
+
+        if (! component) {
+            return;
+        }
+
+        event.preventDefault();
+        component.call('saveBill');
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'F8') {
+            return;
+        }
+
+        const input = document.querySelector('[data-secondary-purchase-action]');
+
+        if (! input) {
+            return;
+        }
+
+        const component = window.Livewire?.find(
+            input.closest('[wire\\:id]')?.getAttribute('wire:id'),
+        );
+
+        if (! component) {
+            return;
+        }
+
+        event.preventDefault();
+        component.call('mountAction', 'secondaryPurchase');
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
         bindBarcodeInputs();
 

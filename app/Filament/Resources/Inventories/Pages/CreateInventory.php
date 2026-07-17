@@ -6,9 +6,11 @@ use App\Filament\Imports\InventoryItemImporter;
 use App\Filament\Resources\Concerns\AlignsFormActionsStart;
 use App\Filament\Resources\Concerns\ImportsInventoryItemsFromCsv;
 use App\Filament\Resources\Concerns\InteractsWithPosBarcode;
+use App\Filament\Resources\Concerns\InteractsWithSecondaryPurchase;
 use App\Filament\Resources\Inventories\InventoryResource;
 use App\Filament\Resources\Inventories\Schemas\InventoryForm;
 use App\Models\Product;
+use App\Support\StockAdjuster;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Str;
 
@@ -17,6 +19,7 @@ class CreateInventory extends CreateRecord
     use AlignsFormActionsStart;
     use ImportsInventoryItemsFromCsv;
     use InteractsWithPosBarcode;
+    use InteractsWithSecondaryPurchase;
 
     protected static string $resource = InventoryResource::class;
 
@@ -28,12 +31,14 @@ class CreateInventory extends CreateRecord
             'code' => 'INV-'.Str::upper(Str::random(8)),
             'date' => now(),
             'status' => 'pending',
+            'tax_inclusive' => false,
         ]);
     }
 
     protected function getHeaderActions(): array
     {
         return [
+            $this->secondaryPurchaseAction(),
             $this->getImportInventoryItemsAction(),
         ];
     }
@@ -67,7 +72,17 @@ class CreateInventory extends CreateRecord
             $data['code'] = 'INV-'.Str::upper(Str::random(8));
         }
 
+        $this->data['items'] = InventoryForm::recalculateAllItemsTax(
+            $this->data['items'] ?? [],
+            (bool) ($data['tax_inclusive'] ?? false),
+        );
+
         return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        StockAdjuster::apply(StockAdjuster::qtyByProduct($this->record->items));
     }
 
     protected function getRedirectUrl(): string

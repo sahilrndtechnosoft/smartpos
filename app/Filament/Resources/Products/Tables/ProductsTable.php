@@ -33,7 +33,7 @@ class ProductsTable
                         : null),
 
                 TextColumn::make('brand.name')
-                    ->label('Brand')
+                    ->label('Company')
                     ->badge()
                     ->color('info')
                     ->sortable()
@@ -93,7 +93,7 @@ class ProductsTable
                     ->falseLabel('Inactive only'),
 
                 SelectFilter::make('brand_id')
-                    ->label('Brand')
+                    ->label('Company')
                     ->options(fn (): array => Brand::query()->orderBy('name')->pluck('name', 'id')->all())
                     ->searchable()
                     ->preload(),

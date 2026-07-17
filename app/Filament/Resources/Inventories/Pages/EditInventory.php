@@ -6,9 +6,11 @@ use App\Filament\Actions\PrintDocumentAction;
 use App\Filament\Resources\Concerns\AlignsFormActionsStart;
 use App\Filament\Resources\Concerns\ImportsInventoryItemsFromCsv;
 use App\Filament\Resources\Concerns\InteractsWithPosBarcode;
+use App\Filament\Resources\Concerns\InteractsWithSecondaryPurchase;
 use App\Filament\Resources\Inventories\InventoryResource;
 use App\Filament\Resources\Inventories\Schemas\InventoryForm;
 use App\Models\Product;
+use App\Support\StockAdjuster;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -20,8 +22,14 @@ class EditInventory extends EditRecord
     use AlignsFormActionsStart;
     use ImportsInventoryItemsFromCsv;
     use InteractsWithPosBarcode;
+    use InteractsWithSecondaryPurchase;
 
     protected static string $resource = InventoryResource::class;
+
+    /**
+     * @var array<string, int>
+     */
+    protected array $stockQtyBeforeSave = [];
 
     protected function posLineItemsStatePath(): string
     {
@@ -49,6 +57,7 @@ class EditInventory extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            $this->secondaryPurchaseAction(),
             $this->getImportInventoryItemsAction(),
             PrintDocumentAction::make('print', 'Print invoice', 'print.inventories.invoice'),
             ActionGroup::make([
@@ -58,5 +67,24 @@ class EditInventory extends EditRecord
             ])
                 ->tooltip('Actions'),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $this->stockQtyBeforeSave = StockAdjuster::qtyByProduct($this->record->items()->get());
+
+        $this->data['items'] = InventoryForm::recalculateAllItemsTax(
+            $this->data['items'] ?? [],
+            (bool) ($data['tax_inclusive'] ?? false),
+        );
+
+        return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        $stockQtyAfterSave = StockAdjuster::qtyByProduct($this->record->items()->get());
+
+        StockAdjuster::apply(StockAdjuster::diff($this->stockQtyBeforeSave, $stockQtyAfterSave));
     }
 }

@@ -19,6 +19,14 @@ class TaxGroup extends Model
         return $this->belongsToMany(Tax::class, 'tax_group_items');
     }
 
+    /**
+     * The combined tax rate for this group (e.g. CGST + SGST), as a percentage.
+     */
+    public function effectiveRate(): float
+    {
+        return (float) $this->taxes->sum('rate');
+    }
+
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);

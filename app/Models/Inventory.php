@@ -18,6 +18,7 @@ class Inventory extends Model
         'supplier_id',
         'status',
         'date',
+        'tax_inclusive',
         'notes',
         'file',
     ];
@@ -26,6 +27,7 @@ class Inventory extends Model
     {
         return [
             'date' => 'datetime',
+            'tax_inclusive' => 'boolean',
         ];
     }
 
@@ -37,5 +39,10 @@ class Inventory extends Model
     public function items(): HasMany
     {
         return $this->hasMany(InventoryItem::class);
+    }
+
+    public function purchaseReturns(): HasMany
+    {
+        return $this->hasMany(PurchaseReturn::class);
     }
 }

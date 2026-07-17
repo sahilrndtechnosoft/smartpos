@@ -16,14 +16,17 @@ class InventoryItem extends Model
         'sr',
         'inventory_id',
         'product_id',
+        'batch_no',
         'qty',
         'mrp',
         'purchase_rate',
         'rate_a',
         'rate_b',
         'rate_c',
+        'tax_total',
         'expiry_date',
         'is_locked',
+        'is_secondary',
     ];
 
     protected function casts(): array
@@ -36,8 +39,10 @@ class InventoryItem extends Model
             'rate_a' => 'decimal:2',
             'rate_b' => 'decimal:2',
             'rate_c' => 'decimal:2',
+            'tax_total' => 'decimal:2',
             'expiry_date' => 'date',
             'is_locked' => 'boolean',
+            'is_secondary' => 'boolean',
         ];
     }
 

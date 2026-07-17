@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Products\Schemas;
 
 use App\Models\Product;
 use App\Models\TaxGroup;
+use App\Support\ProductRateOptions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -73,8 +74,11 @@ class ProductForm
                     TextInput::make('barcode')
                         ->required()
                         ->maxLength(255)
-                        ->unique(table: Product::class, ignoreRecord: true)
-                        ->columnSpanFull(),
+                        ->unique(table: Product::class, ignoreRecord: true),
+
+                    TextInput::make('hsn_code')
+                        ->label('HSN code')
+                        ->maxLength(255),
 
                     TagsInput::make('tags')
                         ->label('Search tags / alternative names')
@@ -149,35 +153,62 @@ class ProductForm
                 ])
                 ->columns(2),
 
-            Section::make('Product Discount')
+            Section::make('Quantity-wise rate slabs')
+                ->description('Charge a different per-unit price once the billed quantity reaches a threshold, per rate type. e.g. Rate A at qty 24 = ₹9.17.')
                 ->collapsible()
                 ->schema([
                     Repeater::make('product_discounts')
                         ->hiddenLabel()
                         ->schema([
-                            TextInput::make('name')
-                                ->label('Rule name')
-                                ->required()
-                                ->maxLength(255),
-
-                            Select::make('type')
-                                ->options([
-                                    'percentage' => 'Percentage',
-                                    'fixed' => 'Fixed amount',
-                                ])
+                            Select::make('rate_type')
+                                ->label('Rate type')
+                                ->options(ProductRateOptions::labels())
                                 ->required()
                                 ->native(false),
 
-                            TextInput::make('value')
+                            TextInput::make('qty')
+                                ->label('Min qty')
                                 ->numeric()
                                 ->required()
-                                ->minValue(0),
+                                ->minValue(1),
+
+                            TextInput::make('price')
+                                ->label('Price at this qty')
+                                ->numeric()
+                                ->required()
+                                ->minValue(0)
+                                ->prefix('₹'),
                         ])
+                        ->columns(3)
                         ->defaultItems(0)
-                        ->addActionLabel('Add discount rule')
+                        ->addActionLabel('Add rate slab')
                         ->collapsible()
                         ->columnSpanFull(),
                 ]),
+
+            Section::make('Free scheme')
+                ->description('e.g. buy 12, get 1 free. Leave the free item blank to give the same product free.')
+                ->collapsible()
+                ->schema([
+                    TextInput::make('scheme_buy_qty')
+                        ->label('Buy qty')
+                        ->numeric()
+                        ->minValue(1),
+
+                    TextInput::make('scheme_free_qty')
+                        ->label('Free qty')
+                        ->numeric()
+                        ->minValue(1),
+
+                    Select::make('scheme_free_product_id')
+                        ->label('Free item')
+                        ->relationship('schemeFreeProduct', 'name')
+                        ->searchable()
+                        ->preload()
+                        ->native(false)
+                        ->placeholder('Same product'),
+                ])
+                ->columns(3),
 
             Section::make('Description & media')
                 ->collapsible()
@@ -225,7 +256,7 @@ class ProductForm
                 ->compact()
                 ->schema([
                     Select::make('brand_id')
-                        ->label('Brand')
+                        ->label('Company')
                         ->relationship('brand', 'name')
                         ->searchable()
                         ->preload()
@@ -263,6 +294,17 @@ class ProductForm
                         ->minValue(0)
                         ->required()
                         ->placeholder('e.g., 1'),
+
+                    TextInput::make('secondary_unit')
+                        ->label('Secondary unit')
+                        ->placeholder('e.g., BOX')
+                        ->helperText('Optional. Lets purchase entry accept qty in this unit.'),
+
+                    TextInput::make('secondary_unit_qty')
+                        ->label('Base units per secondary unit')
+                        ->numeric()
+                        ->minValue(0)
+                        ->placeholder('e.g., 12'),
                 ]),
 
             Section::make('Shipping')

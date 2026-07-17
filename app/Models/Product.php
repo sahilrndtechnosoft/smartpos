@@ -17,6 +17,7 @@ class Product extends Model
     protected $fillable = [
         'name',
         'barcode',
+        'hsn_code',
         'sku',
         'description',
         'qty',
@@ -30,7 +31,12 @@ class Product extends Model
         'rate_c',
         'unit',
         'unit_value',
+        'secondary_unit',
+        'secondary_unit_qty',
         'product_discounts',
+        'scheme_buy_qty',
+        'scheme_free_qty',
+        'scheme_free_product_id',
         'backorder',
         'requires_shipping',
         'published_at',
@@ -55,7 +61,10 @@ class Product extends Model
             'rate_b' => 'decimal:2',
             'rate_c' => 'decimal:2',
             'unit_value' => 'decimal:2',
+            'secondary_unit_qty' => 'decimal:2',
             'product_discounts' => 'array',
+            'scheme_buy_qty' => 'integer',
+            'scheme_free_qty' => 'integer',
             'backorder' => 'boolean',
             'requires_shipping' => 'boolean',
             'published_at' => 'date',
@@ -73,6 +82,11 @@ class Product extends Model
     public function taxGroup(): BelongsTo
     {
         return $this->belongsTo(TaxGroup::class);
+    }
+
+    public function schemeFreeProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'scheme_free_product_id');
     }
 
     public function categories(): BelongsToMany

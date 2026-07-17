@@ -81,11 +81,13 @@ class Dashboard extends BaseDashboard
                         Select::make('payment_mode')
                             ->label('Sales payment mode')
                             ->options([
-                                'cod' => 'Cash on delivery',
+                                'cod' => 'Cash',
                                 'online' => 'Online',
                                 'card' => 'Card',
                                 'upi' => 'UPI',
                                 'wallet' => 'Wallet',
+                                'credit' => 'Credit',
+                                'multi' => 'Multiple',
                             ])
                             ->native(false)
                             ->placeholder('All modes'),

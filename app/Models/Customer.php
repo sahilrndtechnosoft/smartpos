@@ -13,6 +13,13 @@ class Customer extends Model
     use HasUuids;
     use SoftDeletes;
 
+    public const CASH_CUSTOMER_PHONE = '0000000000';
+
+    protected static function booted(): void
+    {
+        static::created(fn (Customer $customer) => LedgerAccount::ensureForCustomer($customer));
+    }
+
     protected $fillable = [
         'phone',
         'name',
@@ -46,5 +53,20 @@ class Customer extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * The default walk-in party used to preselect sale bills.
+     */
+    public static function cashCustomer(): self
+    {
+        return self::query()->firstOrCreate(
+            ['phone' => self::CASH_CUSTOMER_PHONE],
+            [
+                'name' => 'Cash',
+                'is_active' => true,
+                'preferences' => [],
+            ],
+        );
     }
 }

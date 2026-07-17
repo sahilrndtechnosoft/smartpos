@@ -35,14 +35,42 @@ class ProductRateOptions
             ->all();
     }
 
-    public static function priceFor(Product $product, string $rateKey): float
+    public static function priceFor(Product $product, string $rateKey, int $qty = 1): float
     {
+        $slabPrice = self::slabPriceFor($product, $rateKey, $qty);
+
+        if ($slabPrice !== null) {
+            return $slabPrice;
+        }
+
         return (float) match ($rateKey) {
             'mrp' => $product->mrp,
             'rate_b' => $product->rate_b,
             'rate_c' => $product->rate_c,
             default => $product->rate_a,
         };
+    }
+
+    /**
+     * Picks the best matching qty-wise rate slab (highest qty threshold that the
+     * given qty still satisfies) for the rate type, or null if none applies.
+     */
+    protected static function slabPriceFor(Product $product, string $rateKey, int $qty): ?float
+    {
+        $slabs = $product->product_discounts;
+
+        if (! is_array($slabs)) {
+            return null;
+        }
+
+        $bestMatch = collect($slabs)
+            ->filter(fn ($slab): bool => is_array($slab)
+                && ($slab['rate_type'] ?? null) === $rateKey
+                && (int) ($slab['qty'] ?? 0) <= $qty)
+            ->sortByDesc(fn (array $slab): int => (int) $slab['qty'])
+            ->first();
+
+        return $bestMatch === null ? null : (float) $bestMatch['price'];
     }
 
     public static function label(string $rateKey): string

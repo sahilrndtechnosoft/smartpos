@@ -12,6 +12,11 @@ class Supplier extends Model
     use HasUuids;
     use SoftDeletes;
 
+    protected static function booted(): void
+    {
+        static::created(fn (Supplier $supplier) => LedgerAccount::ensureForSupplier($supplier));
+    }
+
     protected $fillable = [
         'name',
         'email',
